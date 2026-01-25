@@ -1,4 +1,5 @@
 import {Component, input} from '@angular/core';
+import {HousingLocationInfo} from "../housinglocation";
 
 @Component({
   selector: 'app-housing-location',
@@ -18,15 +19,4 @@ import {Component, input} from '@angular/core';
 })
 export class HousingLocation {
   housingLocation = input.required<HousingLocationInfo>();
-}
-
-export interface HousingLocationInfo {
-  id: number;
-  name: string;
-  city: string;
-  state: string;
-  photo: string;
-  availableUnits: number;
-  wifi: boolean;
-  laundry: boolean;
 }
