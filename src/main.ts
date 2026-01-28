@@ -7,6 +7,5 @@ import {bootstrapApplication, provideProtractorTestingSupport} from '@angular/pl
 import {App} from './app/app';
 import routeConfig from './app/routes';
 
-bootstrapApplication(App, {providers: [provideProtractorTestingSupport(), provideRouter(routeConfig)]}).catch((err) =>
-  console.error(err),
-);
+bootstrapApplication(App, {providers: [provideProtractorTestingSupport(), provideRouter(routeConfig)],
+}).catch((err) => console.error(err));

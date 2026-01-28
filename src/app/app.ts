@@ -13,7 +13,7 @@ import {Home} from "./home/home";
       </header>
     </a>
     <section class="content">
-      <app-home />
+      <router-outlet />
     </section>
   </main>
   `,
