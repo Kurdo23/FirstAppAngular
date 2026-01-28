@@ -208,3 +208,180 @@ export class HomeComponent {
   }
 }
 ```
+
+## Formulaires réactifs (Reactive Forms)
+
+### 1. Configuration de base
+
+**Import des modules nécessaires :**
+```typescript
+import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
+
+@Component({
+  selector: 'app-details',
+  imports: [ReactiveFormsModule],  // Import du module dans le composant
+  // ...
+})
+```
+
+### 2. Déclaration du FormGroup
+
+**Structure du formulaire dans le TypeScript :**
+```typescript
+export class Details {
+  applyForm = new FormGroup({
+    firstName: new FormControl(''),    // Valeur initiale vide
+    lastName: new FormControl(''),
+    email: new FormControl(''),
+  });
+}
+```
+
+- **`FormGroup`** : Groupe tous les champs du formulaire ensemble
+- **`FormControl`** : Représente chaque champ individuel
+- Les valeurs entre parenthèses (`''`) sont les **valeurs initiales** des champs
+
+### 3. Liaison dans le template
+
+**Connexion HTML ↔ TypeScript :**
+```html
+<form [formGroup]="applyForm" (submit)="submitApplication()">
+  <label for="first-name">First Name</label>
+  <input id="first-name" type="text" formControlName="firstName" />
+
+  <label for="last-name">Last Name</label>
+  <input id="last-name" type="text" formControlName="lastName" />
+
+  <label for="email">Email</label>
+  <input id="email" type="email" formControlName="email" />
+
+  <button type="submit" class="primary">Apply now</button>
+</form>
+```
+
+**Syntaxes Angular importantes :**
+
+| Syntaxe | Type | Description | Exemple |
+|---------|------|-------------|---------|
+| `[property]` | **Property binding** | Lie une propriété TypeScript → HTML | `[formGroup]="applyForm"` |
+| `(event)` | **Event binding** | Écoute un événement HTML → TypeScript | `(submit)="submitApplication()"` |
+| `formControlName` | **Directive** | Lie un input à un FormControl | `formControlName="firstName"` |
+
+### 4. Event Binding : `(submit)`
+
+**Qu'est-ce que `(submit)` ?**
+```html
+<form (submit)="submitApplication()">
+```
+
+- **`submit`** : Événement HTML natif déclenché quand on soumet un formulaire
+- **`( )`** : Syntaxe Angular pour **écouter un événement**
+- **`="submitApplication()"`** : Méthode à exécuter quand l'événement se produit
+
+**Équivalent JavaScript vanilla :**
+```javascript
+form.addEventListener('submit', (event) => {
+  submitApplication();
+});
+```
+
+**Autres exemples d'event binding :**
+- `(click)="onClick()"` : Écoute les clics
+- `(input)="onChange()"` : Écoute les changements de saisie
+- `(keyup)="onKeyUp()"` : Écoute les touches du clavier
+- `(mouseenter)="onHover()"` : Écoute le survol de la souris
+
+### 5. Traitement de la soumission
+
+**Récupération des valeurs du formulaire :**
+```typescript
+submitApplication() {
+  this.housingService.submitApplication(
+    this.applyForm.value.firstName ?? '',
+    this.applyForm.value.lastName ?? '',
+    this.applyForm.value.email ?? '',
+  );
+}
+```
+
+- **`this.applyForm.value`** : Objet contenant toutes les valeurs du formulaire
+- **`?? ''`** : Opérateur de coalescence nulle (nullish coalescing)
+  - Retourne la valeur de gauche si elle existe
+  - Retourne `''` si la valeur est `null` ou `undefined`
+
+**Exemple de l'objet `value` :**
+```typescript
+// Si l'utilisateur a rempli le formulaire :
+this.applyForm.value = {
+  firstName: "Jean",
+  lastName: "Dupont",
+  email: "jean.dupont@example.com"
+}
+```
+
+### 6. Schéma complet du flux
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    COMPOSANT TYPESCRIPT                      │
+├─────────────────────────────────────────────────────────────┤
+│  applyForm = new FormGroup({                                │
+│    firstName: new FormControl(''),                          │
+│    lastName: new FormControl(''),                           │
+│    email: new FormControl(''),                              │
+│  });                                                         │
+│                                                              │
+│  submitApplication() {                                       │
+│    // Récupération des valeurs                              │
+│    const values = this.applyForm.value;                     │
+│  }                                                           │
+└──────────────┬────────────────────────────┬─────────────────┘
+               │                            │
+      [formGroup]="applyForm"      (submit)="submitApplication()"
+               │                            │
+               ▼                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      TEMPLATE HTML                           │
+├─────────────────────────────────────────────────────────────┤
+│  <form [formGroup]="applyForm" (submit)="submitApplication()">│
+│    <input formControlName="firstName" />                    │
+│    <input formControlName="lastName" />                     │
+│    <input formControlName="email" />                        │
+│    <button type="submit">Submit</button>                    │
+│  </form>                                                     │
+└─────────────────────────────────────────────────────────────┘
+               │
+               │ formControlName lie chaque input
+               │ à son FormControl
+               ▼
+        Synchronisation bidirectionnelle automatique
+```
+
+### 7. Avantages des formulaires réactifs
+
+✅ **Gestion programmatique** : Tout est contrôlé dans le TypeScript
+✅ **Validation facilitée** : Ajout facile de validateurs
+✅ **Testabilité** : Logique isolée dans la classe, facile à tester
+✅ **Réactivité** : Observables pour écouter les changements en temps réel
+✅ **Immutabilité** : Les changements créent de nouvelles instances
+
+### 8. Exemple avec validation (optionnel)
+
+```typescript
+import { Validators } from '@angular/forms';
+
+applyForm = new FormGroup({
+  firstName: new FormControl('', [Validators.required, Validators.minLength(2)]),
+  lastName: new FormControl('', Validators.required),
+  email: new FormControl('', [Validators.required, Validators.email]),
+});
+
+// Vérifier si le formulaire est valide
+submitApplication() {
+  if (this.applyForm.valid) {
+    // Traiter les données
+  } else {
+    console.log('Formulaire invalide');
+  }
+}
+```
